@@ -75,7 +75,7 @@ function defineLightControl(name, title, states, safe, idle){
     defineRule({
         whenChanged: name+"/enabled",
         then: function (newValue, devName, cellName) {
-          ps.enabled = true;
+          ps.enabled = newValue;
           safeUpdate();
         }
     })
