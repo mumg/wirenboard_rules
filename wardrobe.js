@@ -1,13 +1,22 @@
-defineLightControl("wardrobe_light",
-                   "Свет в гардеробе",
-  [    
+defineLightControl({
+  name: "wardrobe_light",
+  title: "Свет в гардеробе",
+  states: [    
     function(){
       dev["wb-gpio/EXT1_K2"] = true
     }
   ],
-  function(){
+  safe: function(){
       dev["wb-gpio/EXT1_K2"] = false
   },
-  function(){
+  idle: function(){
       dev["wb-gpio/EXT1_K2"] = false
-  });
+  }
+});
+
+defineRule({
+  whenChanged: "wb-mcm8_227/Input 2 Single Press Counter",
+    then: function(){
+    dev["wardrobe_light/enabled"] = !dev["wardrobe_light/enabled"]
+  }
+});

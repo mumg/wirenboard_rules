@@ -97,7 +97,7 @@ var water_heater_sm = createSM(
                     log.info("water_heater: attach_heater enter")
                     dev["water_heater/state"] = "Подклюбчаем нагреватель"
                     sm.startTimer(sm, "complete", 15000)
-                    dev["wb-mr6cu_101/K2"] = true
+                    dev["wb-mr6cu_101/K1"] = true
                 },
                 exit: function (sm) {
                     log.info("water_heater: attach_heater exit")
@@ -155,7 +155,7 @@ var water_heater_sm = createSM(
             detach_heater: {
                 enter: function (sm) {
                     log.info("water_heater: detach_heater enter")
-                    dev["wb-mr6cu_101/K1"] = true
+                    dev["wb-mr6cu_101/K2"] = true
                     dev["water_heater/state"] = "Отключаем нагреватель"
                     sm.startTimer(sm, "complete", 15000)
                 },

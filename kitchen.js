@@ -2,51 +2,143 @@ defineSafetyGuard(
     function () {
        dev["wb-mwac-v2_57/Output K1"] = false
        dev["wb-mwac-v2_57/Output K2"] = false
+       dev["wb-gpio/EXT1_K7"] = false
     },
     function() {
        dev["wb-mwac-v2_57/Output K1"] = true
        dev["wb-mwac-v2_57/Output K2"] = true
+       dev["wb-gpio/EXT1_K7"] = true
     }
 );
 
 
-defineLightControl("kitchen_light",
-                   "Свет на кухне",
-  [
+defineLightControl({
+  name: "kitchen_light",
+  title: "Свет на кухне",
+  states: [
     function(){
-      dev["wb-led_132/Channel 1 Brightness"] = 50
-      dev["wb-led_132/Channel 1"] = true
+      dev["wb-led_132/Channel 2 Brightness"] = 50
+      dev["wb-led_132/Channel 2"] = true
       dev["wb-gpio/EXT1_K8"] = false
     },
     function(){
-      dev["wb-led_132/Channel 1 Brightness"] = 100
-      dev["wb-led_132/Channel 1"] = true
+      dev["wb-led_132/Channel 2 Brightness"] = 100
+      dev["wb-led_132/Channel 2"] = true
+      dev["wb-gpio/EXT1_K8"] = false
+    },
+    function(){
+      dev["wb-led_132/Channel 2 Brightness"] = 100
+      dev["wb-led_132/Channel 2"] = true
       dev["wb-gpio/EXT1_K8"] = true
     }
   ],
-  function(){
-      dev["wb-led_132/Channel 1 Brightness"] = 0
-      dev["wb-led_132/Channel 1"] = false
+  safe: function(){
+      dev["wb-led_132/Channel 2 Brightness"] = 0
+      dev["wb-led_132/Channel 2"] = false
       dev["wb-gpio/EXT1_K8"] = false
   },
-  function(){
-      dev["wb-led_132/Channel 1 Brightness"] = 10
-      dev["wb-led_132/Channel 1"] = true
+  idle: function(){
+      dev["wb-led_132/Channel 2 Brightness"] = 10
+      dev["wb-led_132/Channel 2"] = true
       dev["wb-gpio/EXT1_K8"] = false
   }               
-)
+})
 
 defineRule({
-  whenChanged: "wb-mcm8_30/Input 3 Single Press Counter",
+  whenChanged: ["wb-mcm8_30/Input 3 Single Press Counter", 
+                "wb-mcm8_30/Input 2 Single Press Counter"],
   then: function (newValue, devName, cellName) {
     dev["kitchen_light/enabled"] = !dev["kitchen_light/enabled"]
   }
 });
- 
+
+defineLightControl({
+  name: "kitchen_backlight",
+  title: "Подсветка на кухне",
+  states: [
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 10
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 20
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 30
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 40
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 50
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 60
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 70
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 80
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 90
+      dev["wb-led_132/Channel 1"] = true
+    },
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 100
+      dev["wb-led_132/Channel 1"] = true
+    }
+  ], 
+  safe: function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 0
+      dev["wb-led_132/Channel 1"] = false
+  },
+  idle: function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 0
+      dev["wb-led_132/Channel 1"] = false
+  }  
+});
 
 defineRule({
   whenChanged: "wb-mcm8_30/Input 3 Long Press Counter",
   then: function (newValue, devName, cellName) {
+    dev["kitchen_light/mode"] = 2
+    dev["kitchen_light/enabled"] = true
+  }
+});
+defineRule({
+  whenChanged: "wb-mcm8_30/Input 3 Double Press Counter",
+  then: function (newValue, devName, cellName) {
     dev["kitchen_light/next"] = true
   }
 });
+
+defineRule({
+  whenChanged: "kitchen_dimmer/action",
+  then: function(newValue, devName, cellName){
+    dev["kitchen_dimmer/action"] = "none";
+    if ( newValue == "single"){
+      log.info("single")
+      dev["kitchen_backlight/enabled"] = !dev["kitchen_backlight/enabled"]
+    }
+  }
+});
+
+defineRule({
+  whenChanged: "kitchen_dimmer/action_rotation_angle",
+  then: function(newValue){
+    var angle = parseInt(newValue);
+    if ( angle != 0){
+      dev["kitchen_backlight/change"] = angle / 12
+      dev["kitchen_dimmer/action_rotation_angle"] = "0"
+    }
+  }
+})
