@@ -23,27 +23,30 @@ function defineThreshold(cfg){
           for (var threshold in point.thresholds) {
               threshold = point.thresholds[threshold]
               if ((threshold.low === undefined || value >= threshold.low) &&
-                  (threshold.high === undefined || value < threshold.high)) {
+                  (threshold.high === undefined || value <= threshold.high)) {
                   return index;
               }
               index++;
           }
-          return 0;
+          return -1;
       }
 
       var idx = lookupThreshold(dev[point.dev])
-      log.info(idx)
-      log.info(JSON.stringify(point))
-      dev[cfg.name + "/" + point.name] = point.thresholds[idx].title || idx.toString()
-      point.thresholds[idx].then()
+      if ( idx >= 0 ){
+        dev[cfg.name + "/" + point.name] = point.thresholds[idx].title || idx.toString()
+        point.thresholds[idx].then()        
+      }
       defineRule({
           whenChanged: point.dev,
           then: function (newValue) {
               var new_idx = lookupThreshold(newValue)
               if (new_idx !== idx) {
                   idx = new_idx
-                  dev[cfg.name + "/" + point.name] = point.thresholds[idx].title || idx.toString()
-                  point.thresholds[idx].then()
+                  if ( idx >= 0 ){
+                    dev[cfg.name + "/" + point.name] = point.thresholds[idx].title || idx.toString()
+                    log.info( newValue + " " + cfg.name + " " + point.name + " " + idx);
+                    point.thresholds[idx].then()                    
+                  }
               }
           }
       })

@@ -7,7 +7,7 @@ function defineLightControl(cfg){
                 type: "switch",
                 title: "Включено",
                 value: false,
-                readonly: false
+                readonly: true
             }
         }
     };
@@ -37,7 +37,7 @@ function defineLightControl(cfg){
       type: "switch",
       title: "Безопасный режим",
       value: false,
-      readonly: false
+      readonly: true
     }
   }
 
@@ -47,13 +47,17 @@ function defineLightControl(cfg){
         cfg.safe()
     }
    function _update(){
-       if ( ps.enabled || false ){
-          cfg.states[ps.mode || 0]();
-       }else{
-          if( cfg.idle !== undefined ){
-            cfg.idle()
-          }
-        }
+       cfg.states[ps.mode || 0]();
+       dev[cfg.name + "/enabled"] = (ps.mode || 0) != 0
+    }
+    function next(){
+      var current = dev[cfg.name + "/mode"];
+      current++;
+      if (current >= cfg.states.length) {
+          current = 0;
+      }
+      ps.mode = current;
+      dev[cfg.name + "/mode"] = current;
     }
     if (cfg.states.length > 1){
       dev[cfg.name + "/mode"] = ps.mode || 0;
@@ -61,7 +65,7 @@ function defineLightControl(cfg){
           whenChanged: cfg.name + "/mode",
           then: function (newValue, devName, cellName) {
               if (newValue >= cfg.states.length ){
-                  dev[cfg.name + "/mode"] = 0
+                  ps.mode = 0
               }else{
                   ps.mode = newValue;
               }
@@ -71,21 +75,20 @@ function defineLightControl(cfg){
       defineRule({
           whenChanged: cfg.name+"/next",
           then: function (newValue, devName, cellName) {
+              if(dev[cfg.name+"/safe"]){
+                return
+              }
               if (newValue == true) {
-                  var current = dev[cfg.name + "/mode"];
-                  current++;
-                  if (current >= cfg.states.length) {
-                      current = 0;
-                  }
-                  ps.mode = current;
-                  dev[cfg.name + "/mode"] = current;
-                  dev[cfg.name + "/next"] = false;
+                next()
               }
           }
       })
       defineRule({
           whenChanged: cfg.name+"/change",
           then: function (newValue, devName, cellName) {
+              if(cfg.safe && dev[cfg.name+"/safe"]){
+                return
+              }
               if (newValue != 0) {
                   var current = dev[cfg.name + "/mode"];
                   current += newValue;
@@ -119,21 +122,7 @@ function defineLightControl(cfg){
         }, function(){
           dev[cfg.name+"/safe"] = false
         })
-      defineRule({
-          whenChanged: cfg.name+"/enabled",
-          then: function (newValue, devName, cellName) {
-            ps.enabled = newValue;
-            _update();
-          }
-      })
-    }else{
-      defineRule({
-          whenChanged: cfg.name+"/enabled",
-          then: function (newValue, devName, cellName) {
-            ps.enabled = newValue;
-            _update();
-          }
-      })
+
     }
 
 }

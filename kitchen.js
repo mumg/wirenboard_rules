@@ -17,6 +17,11 @@ defineLightControl({
   title: "Свет на кухне",
   states: [
     function(){
+      dev["wb-led_132/Channel 2 Brightness"] = 10
+      dev["wb-led_132/Channel 2"] = true
+      dev["wb-gpio/EXT1_K8"] = false
+    },
+    function(){
       dev["wb-led_132/Channel 2 Brightness"] = 50
       dev["wb-led_132/Channel 2"] = true
       dev["wb-gpio/EXT1_K8"] = false
@@ -36,19 +41,14 @@ defineLightControl({
       dev["wb-led_132/Channel 2 Brightness"] = 0
       dev["wb-led_132/Channel 2"] = false
       dev["wb-gpio/EXT1_K8"] = false
-  },
-  idle: function(){
-      dev["wb-led_132/Channel 2 Brightness"] = 10
-      dev["wb-led_132/Channel 2"] = true
-      dev["wb-gpio/EXT1_K8"] = false
-  }               
+  }           
 })
 
 defineRule({
   whenChanged: ["wb-mcm8_30/Input 3 Single Press Counter", 
                 "wb-mcm8_30/Input 2 Single Press Counter"],
   then: function (newValue, devName, cellName) {
-    dev["kitchen_light/enabled"] = !dev["kitchen_light/enabled"]
+    dev["kitchen_light/next"] = true
   }
 });
 
@@ -56,6 +56,10 @@ defineLightControl({
   name: "kitchen_backlight",
   title: "Подсветка на кухне",
   states: [
+    function(){
+      dev["wb-led_132/Channel 1 Brightness"] = 0
+      dev["wb-led_132/Channel 1"] = false
+    },
     function(){
       dev["wb-led_132/Channel 1 Brightness"] = 10
       dev["wb-led_132/Channel 1"] = true
@@ -100,35 +104,6 @@ defineLightControl({
   safe: function(){
       dev["wb-led_132/Channel 1 Brightness"] = 0
       dev["wb-led_132/Channel 1"] = false
-  },
-  idle: function(){
-      dev["wb-led_132/Channel 1 Brightness"] = 0
-      dev["wb-led_132/Channel 1"] = false
-  }  
-});
-
-defineRule({
-  whenChanged: "wb-mcm8_30/Input 3 Long Press Counter",
-  then: function (newValue, devName, cellName) {
-    dev["kitchen_light/mode"] = 2
-    dev["kitchen_light/enabled"] = true
-  }
-});
-defineRule({
-  whenChanged: "wb-mcm8_30/Input 3 Double Press Counter",
-  then: function (newValue, devName, cellName) {
-    dev["kitchen_light/next"] = true
-  }
-});
-
-defineRule({
-  whenChanged: "kitchen_dimmer/action",
-  then: function(newValue, devName, cellName){
-    dev["kitchen_dimmer/action"] = "none";
-    if ( newValue == "single"){
-      log.info("single")
-      dev["kitchen_backlight/enabled"] = !dev["kitchen_backlight/enabled"]
-    }
   }
 });
 
