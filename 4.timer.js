@@ -98,3 +98,15 @@ function defineTimer(cfg){
 }
 
 global.__proto__.defineTimer = defineTimer
+
+function delayRun(timeout, cb){
+  var tm = setTimeout(timeout, cb)
+  return function(){
+    if ( tm !== undefined ){
+      cancelTimeout(tm)
+      tm = undefined
+    }
+  }
+}
+
+global.__proto__.delayRun = delayRun

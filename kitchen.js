@@ -22,18 +22,13 @@ defineLightControl({
       dev["wb-gpio/EXT1_K8"] = false
     },
     function(){
-      dev["wb-led_132/Channel 2 Brightness"] = 50
-      dev["wb-led_132/Channel 2"] = true
-      dev["wb-gpio/EXT1_K8"] = false
-    },
-    function(){
       dev["wb-led_132/Channel 2 Brightness"] = 100
       dev["wb-led_132/Channel 2"] = true
       dev["wb-gpio/EXT1_K8"] = false
     },
     function(){
-      dev["wb-led_132/Channel 2 Brightness"] = 100
-      dev["wb-led_132/Channel 2"] = true
+      dev["wb-led_132/Channel 2 Brightness"] = 0
+      dev["wb-led_132/Channel 2"] = false
       dev["wb-gpio/EXT1_K8"] = true
     }
   ],

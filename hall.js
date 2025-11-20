@@ -124,7 +124,7 @@ defineRule({
 
 
 defineRule({
-  whenChanged: ["wb-mcm8_1/Input 2", "wb-mcm8_227/Input 1", "wb-mcm8_30/Input 4"],
+  whenChanged: ["wb-mcm8_1/Input 2", "wb-mcm8_227/Input 1", "wb-mcm8_30/Input 4", "wb-mcm8_30/Input 7"],
   then: function(newValue){
     if( newValue){
       dev["hall_light/next"] = true
@@ -134,7 +134,7 @@ defineRule({
 
 defineAlarm({
   name: "entrance_door_opened",
-  title: "Входная дверь открыта",
+  title: "Внимание: Входная дверь открыта",
   timeout: 30
 })
 

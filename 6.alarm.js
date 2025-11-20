@@ -7,7 +7,12 @@ function defineAlarm(cfg){
                               type: "switch",
                               title: "Включено",
                               value: false,
-                              readonly: false
+                              readonly: true
+                          },
+                          cancel: {
+                              type: "pushbutton",
+                              title: "Отменить",
+                              value: false
                           }
                         }
                       })
@@ -28,6 +33,12 @@ function defineAlarm(cfg){
           }, cfg.timeout * 1000)
         }
       }
+    }
+  })
+  defineRule({
+    whenChanged: cfg.name + "/cancel",
+    then: function(){
+      dev[cfg.name + "/active"] = false
     }
   })
 }

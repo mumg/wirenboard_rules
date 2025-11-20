@@ -1,7 +1,19 @@
 var pulsate_buzzer = undefined;
-/*
+
+defineVirtualDevice("alarm", {
+    title: "Звук тревоги",
+    cells: {
+      enabled: {
+        type: "switch",
+        readonly: false,
+        title: "Включен",
+        value: false
+      }
+    }
+})
+
 defineRule({
-  whenChanged: "entrance_door_opened/active",
+  whenChanged: "alarm/enabled",
   then: function(newValue){
     if(newValue){
       if ( pulsate_buzzer != undefined ){
@@ -21,4 +33,4 @@ defineRule({
       }
     }
   }
-})*/
+})

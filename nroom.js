@@ -93,58 +93,6 @@ defineThreshold({
   name: "nikita_thresholds",
   title: "Пороги автоматизации у Никиты",
   points: [
-    {
-      dev: "wb-msw-v4_80/CO2",
-      name: "CO2",
-      title: "Порог C02",
-      thresholds: [
-        {
-          high: 549,
-          title: "Бризер 1 скорость",
-          then: function(){
-            dev["breezer_nikita/Fan speed"] = 1
-          }
-        },
-        {
-          low: 550,
-          high: 599,
-          title: "Бризер 2 скорость",
-          then: function(){
-            dev["breezer_nikita/Fan speed"] = 2
-          }
-        },
-        {
-          low: 600,
-          high: 649,
-          title: "Бризер 3 скорость",
-          then: function(){
-            dev["breezer_nikita/Fan speed"] = 3
-          }
-        },
-        {
-          low: 650,
-          high: 699,
-          title: "Бризер 4 скорость",
-          then: function(){
-            dev["breezer_nikita/Fan speed"] = 4
-          }
-        },
-        {
-          low: 700,
-          high: 999,
-          title: "Бризер 5 скорость",
-          then: function(){
-            dev["breezer_nikita/Fan speed"] = 5
-          }
-        },
-        {
-          low: 1000,
-          title: "Бризер 6 скорость",
-          then: function(){
-            dev["breezer_nikita/Fan speed"] = 6
-          }
-        }
-      ]
-    }
+    createDioxideThreshold("wb-msw-v4_80/CO2", "breezer_nikita/Fan speed")
   ]
 })
