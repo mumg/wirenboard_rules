@@ -96,3 +96,5 @@ defineThreshold({
     createDioxideThreshold("wb-msw-v4_80/CO2", "breezer_nikita/Fan speed")
   ]
 })
+
+
