@@ -51,6 +51,14 @@ defineRule({
 })
 
 defineRule({
+  whenChanged: ["wb-mcm8_227/Input 6 Double Press Counter",
+                "wb-mcm8_227/Input 5 Double Press Counter"],
+  then: function(){
+    dev["kroom_light/mode"] = 0
+  }
+})
+
+defineRule({
   whenChanged: ["wb-mcm8_227/Input 6 Long Press Counter",
                 "wb-mcm8_227/Input 5 Long Press Counter"],
   then: function(){
@@ -67,6 +75,22 @@ defineThreshold({
   name: "kristina_thresholds",
   title: "Пороги автоматизации у Кристины",
   points: [
-    createDioxideThreshold("wb-msw-v4_75/CO2", "breezer_kristina/Fan speed")
+    createDioxideThreshold("wb-msw-v4_75/CO2", "breezer_kristina/Fan speed"),
+    createHeaterThreshold("jls30h_14/Temperature","wb-mao4_204/Channel 3 Dimming Level")
   ]
 })
+/*
+defineSheduledSwitch({
+  name: "kristina_tv",
+  title: "Телевизор у Кристины",
+  enabled: function(state){
+    if(state){
+      log.info("Switch on")
+      publish("zigbee2mqtt/ktv/set", JSON.stringify({ state: "ON" }), 2, false);
+    }else{
+      log.info("Switch off")
+      publish("zigbee2mqtt/ktv/set", JSON.stringify({ state: "OFF" }), 2, false);
+    }
+    
+  }
+})*/

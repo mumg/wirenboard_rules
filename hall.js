@@ -67,18 +67,23 @@ defineLightControl({
     function(){
       dev["wb-gpio/EXT2_K7"] = false
       dev["wb-led_136/Channel 1"] = true
-      dev["wb-led_136/Channel 1 Brightness"] = 5
+      dev["wb-led_136/Channel 1 Brightness"] = 2
+    },
+    function(){
+      dev["wb-gpio/EXT2_K7"] = false
+      dev["wb-led_136/Channel 1"] = true
+      dev["wb-led_136/Channel 1 Brightness"] = 20
     },
     function(){
       dev["wb-gpio/EXT2_K7"] = true
-      dev["wb-led_136/Channel 1"] = false
-      dev["wb-led_136/Channel 1 Brightness"] = 0
+      dev["wb-led_136/Channel 1"] = true
+      dev["wb-led_136/Channel 1 Brightness"] = 2
     }
   ],
   safe: function(){
       dev["wb-gpio/EXT2_K7"] = false
       dev["wb-led_136/Channel 1"] = true
-      dev["wb-led_136/Channel 1 Brightness"] = 10
+      dev["wb-led_136/Channel 1 Brightness"] = 2
   }
 });
 
