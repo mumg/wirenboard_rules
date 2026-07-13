@@ -16,7 +16,7 @@ function defineLightControl(cfg){
                 type: "value",
                 title: "Режим",
                 value: 0,
-                readonly: true
+                readonly: false
       }
       vd.cells["next"] = {
                 type: "pushbutton",
@@ -64,6 +64,7 @@ function defineLightControl(cfg){
       defineRule({
           whenChanged: cfg.name + "/mode",
           then: function (newValue, devName, cellName) {
+            log.info(devName + " = " + newValue)
               if (newValue >= cfg.states.length ){
                   ps.mode = 0
               }else{
