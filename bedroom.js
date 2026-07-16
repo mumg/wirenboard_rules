@@ -37,11 +37,6 @@ defineLightControl({
       dev["wb-led_136/Channel 4"] = false
       dev["wb-led_136/Channel 4 Brightness"] = 0
       dev["wb-gpio/EXT1_K4"] = false
-  },
-  idle: function(){
-      dev["wb-led_136/Channel 4"] = false
-      dev["wb-led_136/Channel 4 Brightness"] = 0
-      dev["wb-gpio/EXT1_K4"] = false
   }
 });
 

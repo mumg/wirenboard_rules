@@ -100,10 +100,10 @@ function defineTimer(cfg){
 global.__proto__.defineTimer = defineTimer
 
 function delayRun(timeout, cb){
-  var tm = setTimeout(timeout, cb)
+  var tm = setTimeout(cb, timeout)
   return function(){
     if ( tm !== undefined ){
-      cancelTimeout(tm)
+      clearTimeout(tm)
       tm = undefined
     }
   }

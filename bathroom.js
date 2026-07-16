@@ -86,6 +86,9 @@ defineThreshold({
       dev: "wb-msw-v4_28/Humidity",
       name: "Humidity",
       title: "Порог влажности",
+      initialIndex: 0,
+      invalidIndex: 0,
+      invalidTitle: "Ошибка датчика: вентиляция выключена",
       thresholds: [
         {
           high: 50,

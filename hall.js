@@ -11,6 +11,7 @@ defineLightControl({
       dev["wb-led_30/Channel 1 Brightness"] = 100
     }
   ],
+  enabled: true,
   safe: function(){
       dev["wb-led_30/Channel 1"] = false
   }
@@ -29,6 +30,7 @@ defineLightControl({
       dev["wb-led_30/Channel 2 Brightness"] = 100
     }
   ],
+  enabled: true,
   safe: function(){
       dev["wb-led_30/Channel 2"] = false
   }
@@ -80,6 +82,7 @@ defineLightControl({
       dev["wb-led_136/Channel 1 Brightness"] = 2
     }
   ],
+  enabled: true,
   safe: function(){
       dev["wb-gpio/EXT2_K7"] = false
       dev["wb-led_136/Channel 1"] = true
@@ -152,4 +155,3 @@ defineRule({
     }
   }
 })
-

@@ -79,18 +79,26 @@ defineThreshold({
     createHeaterThreshold("jls30h_14/Temperature","wb-mao4_204/Channel 3 Dimming Level")
   ]
 })
-/*
-defineSheduledSwitch({
-  name: "kristina_tv",
+
+defineVirtualDevice("kristina_tv", {
   title: "Телевизор у Кристины",
-  enabled: function(state){
-    if(state){
-      log.info("Switch on")
+  cells: {
+    enabled: {
+      type: "switch",
+      value: false,
+      title: "Включен"
+    }
+  }
+});
+
+defineRule({
+  whenChanged: "kristina_tv/enabled",
+  then: function(newValue){
+    if(newValue){
       publish("zigbee2mqtt/ktv/set", JSON.stringify({ state: "ON" }), 2, false);
     }else{
-      log.info("Switch off")
       publish("zigbee2mqtt/ktv/set", JSON.stringify({ state: "OFF" }), 2, false);
     }
-    
   }
-})*/
+})
+

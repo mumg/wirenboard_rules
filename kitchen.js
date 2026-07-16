@@ -32,6 +32,7 @@ defineLightControl({
       dev["wb-gpio/EXT1_K8"] = true
     }
   ],
+  enabled: true,
   safe: function(){
       dev["wb-led_132/Channel 2 Brightness"] = 0
       dev["wb-led_132/Channel 2"] = false
