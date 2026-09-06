@@ -65,16 +65,16 @@ function createDioxideThreshold(source, dest){
       onIndexChange: function(oldIndex, newIndex){
         var heater = breezerDev + "/Heater"
         if (newIndex === 0) {
-          if (dev[heater] != 0) {
-            dev[heater] = 0
+          if (dev[heater] !== false) {
+            dev[heater] = false
           }
           return
         }
 
         var targetTemperatures = [0, 17, 10]
         dev[breezerDev + "/Target temperature"] = targetTemperatures[newIndex]
-        if (dev[heater] != 1) {
-          dev[heater] = 1
+        if (dev[heater] !== true) {
+          dev[heater] = true
         }
       },
       thresholds: thresholds
