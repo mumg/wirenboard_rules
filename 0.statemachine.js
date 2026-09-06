@@ -11,7 +11,9 @@ function createSM(args, transitions, initial){
                 clearTimeout(sm.timers[evt])
             }
             sm.timers[evt] = setTimeout(function(){
-                log.info("sm " + sm.currentName + " " + evt);
+                if (evt !== "tick") {
+                    log.info("sm " + sm.currentName + " " + evt)
+                }
                 if(sm.timers.hasOwnProperty(evt)){
                     delete(sm.timers[evt])
                 }
