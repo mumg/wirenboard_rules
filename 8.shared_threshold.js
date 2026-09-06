@@ -1,64 +1,83 @@
 function createDioxideThreshold(source, dest){
+  var breezerDev = dest.split("/")[0]
+  var thresholds = []
+
+  function addThreshold(index, low, high, speed){
+    var threshold = {
+      index: index,
+      title: "Бризер " + speed + " скорость",
+      then: function(){
+        dev[dest] = speed
+      }
+    }
+
+    if (low !== null) {
+      threshold.low = low
+    }
+    if (high !== null) {
+      threshold.high = high
+      threshold.highInclusive = false
+    }
+    thresholds.push(threshold)
+  }
+
+  function addThresholds(index, speeds){
+    addThreshold(index, null, 550, speeds[0])
+    addThreshold(index, 700, 800, speeds[1])
+    addThreshold(index, 800, 900, speeds[2])
+    addThreshold(index, 900, 1000, speeds[3])
+    addThreshold(index, 1000, 1200, speeds[4])
+    addThreshold(index, 1200, null, speeds[5])
+  }
+
+  addThresholds(0, [1, 2, 3, 4, 5, 6])
+  addThresholds(1, [1, 2, 3, 4, 5, 5])
+  addThresholds(2, [1, 2, 3, 4, 4, 4])
+
   return {
       dev: source,
       name: "CO2",
       title: "Порог CO2",
-      initialIndex: 0,
+      initialIndex: {
+        0: 0,
+        1: 6,
+        2: 12
+      },
       invalidIndex: 0,
       invalidTitle: "Ошибка датчика: бризер 1 скорость",
-      thresholds: [
-        {
-          high: 550,
-          highInclusive: false,
-          title: "Бризер 1 скорость",
-          then: function(){
-            dev[dest] = 1
-          }
-        },
-        {
-          low: 700,
-          high: 800,
-          highInclusive: false,
-          title: "Бризер 2 скорость",
-          then: function(){
-            dev[dest] = 2
-          }
-        },
-        {
-          low: 800,
-          high: 900,
-          highInclusive: false,
-          title: "Бризер 3 скорость",
-          then: function(){
-            dev[dest] = 3
-          }
-        },
-        {
-          low: 900,
-          high: 1000,
-          highInclusive: false,
-          title: "Бризер 4 скорость",
-          then: function(){
-            dev[dest] = 4
-          }
-        },
-        {
-          low: 1000,
-          high: 1200,
-          highInclusive: false,
-          title: "Бризер 5 скорость",
-          then: function(){
-            dev[dest] = 5
-          }
-        },
-        {
-          low: 1200,
-          title: "Бризер 6 скорость",
-          then: function(){
-            dev[dest] = 6
-          }
+      indexWhenChanged: "jls30h_14/Temperature",
+      getIndex: function(currentIndex){
+        var temperature = dev["jls30h_14/Temperature"]
+        if (temperature === null || temperature === undefined ||
+            temperature === "" || !isFinite(Number(temperature))) {
+          return currentIndex === null ? 0 : currentIndex
         }
-      ]
+
+        temperature = Number(temperature)
+        if (temperature >= 10) {
+          return 0
+        }
+        if (temperature <= -10) {
+          return 2
+        }
+        return 1
+      },
+      onIndexChange: function(oldIndex, newIndex){
+        var heater = breezerDev + "/Heater"
+        if (newIndex === 0) {
+          if (dev[heater] != 0) {
+            dev[heater] = 0
+          }
+          return
+        }
+
+        var targetTemperatures = [0, 17, 10]
+        dev[breezerDev + "/Target temperature"] = targetTemperatures[newIndex]
+        if (dev[heater] != 1) {
+          dev[heater] = 1
+        }
+      },
+      thresholds: thresholds
     }
 }
 

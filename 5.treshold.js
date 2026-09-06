@@ -1,6 +1,7 @@
 function createThresholdPoint(deviceName, point) {
     var controlName = deviceName + "/" + point.name
     var currentIndex = null
+    var currentSelectionIndex = null
 
     function isNumber(value) {
         if (value === null || value === undefined || value === "" ||
@@ -26,9 +27,42 @@ function createThresholdPoint(deviceName, point) {
         return lowMatches && highMatches
     }
 
+    function normalizeSelectionIndex(value) {
+        if (!isNumber(value)) {
+            return null
+        }
+
+        var index = Number(value)
+        if (index < 0 || Math.floor(index) !== index) {
+            return null
+        }
+        return index
+    }
+
+    function getThresholdSelectionIndex(threshold) {
+        if (threshold.index === undefined) {
+            return 0
+        }
+        return normalizeSelectionIndex(threshold.index)
+    }
+
+    function resolveSelectionIndex() {
+        if (typeof point.getIndex !== "function") {
+            return 0
+        }
+
+        var index = normalizeSelectionIndex(point.getIndex(currentSelectionIndex))
+        if (index === null) {
+            log.error(deviceName + "/" + point.name + ": getIndex returned invalid index")
+            return 0
+        }
+        return index
+    }
+
     function isUsableThreshold(threshold) {
         return threshold &&
                typeof threshold.then === "function" &&
+               getThresholdSelectionIndex(threshold) !== null &&
                (threshold.low === undefined || isNumber(threshold.low)) &&
                (threshold.high === undefined || isNumber(threshold.high)) &&
                !(threshold.low !== undefined &&
@@ -36,9 +70,10 @@ function createThresholdPoint(deviceName, point) {
                  Number(threshold.low) > Number(threshold.high))
     }
 
-    function lookupThreshold(value) {
+    function lookupThreshold(value, selectionIndex) {
         for (var index = 0; index < point.thresholds.length; index++) {
             if (isUsableThreshold(point.thresholds[index]) &&
+                getThresholdSelectionIndex(point.thresholds[index]) === selectionIndex &&
                 includesValue(point.thresholds[index], value)) {
                 return index
             }
@@ -55,6 +90,13 @@ function createThresholdPoint(deviceName, point) {
         return typeof index === "number" &&
                index >= 0 &&
                index < point.thresholds.length
+    }
+
+    function getInitialThresholdIndex(selectionIndex) {
+        if (point.initialIndex && typeof point.initialIndex === "object") {
+            return point.initialIndex[selectionIndex]
+        }
+        return point.initialIndex
     }
 
     function applyIndex(index, value, force, title) {
@@ -90,6 +132,15 @@ function createThresholdPoint(deviceName, point) {
     }
 
     function evaluate(rawValue, force) {
+        var newSelectionIndex = resolveSelectionIndex()
+        if (currentSelectionIndex !== newSelectionIndex) {
+            var oldSelectionIndex = currentSelectionIndex
+            currentSelectionIndex = newSelectionIndex
+            if (typeof point.onIndexChange === "function") {
+                point.onIndexChange(oldSelectionIndex, newSelectionIndex)
+            }
+        }
+
         if (!isNumber(rawValue)) {
             applyInvalid(rawValue, "invalid sensor value " + rawValue)
             return
@@ -97,23 +148,30 @@ function createThresholdPoint(deviceName, point) {
 
         var value = Number(rawValue)
 
-        var newIndex = lookupThreshold(value)
+        var newIndex = lookupThreshold(value, currentSelectionIndex)
         if (newIndex >= 0) {
             applyIndex(newIndex, value, force === true)
             return
         }
 
         // A gap between thresholds is a hysteresis zone. Keep the last state.
-        if (currentIndex !== null) {
+        if (currentIndex !== null &&
+            getThresholdSelectionIndex(point.thresholds[currentIndex]) === currentSelectionIndex) {
             dev[controlName] = getThresholdTitle(currentIndex)
             return
         }
 
-        if (isValidIndex(point.initialIndex)) {
-            applyIndex(point.initialIndex, value, true)
+        var initialIndex = getInitialThresholdIndex(currentSelectionIndex)
+        if (isValidIndex(initialIndex) &&
+            getThresholdSelectionIndex(point.thresholds[initialIndex]) === currentSelectionIndex) {
+            applyIndex(initialIndex, value, true)
         } else {
             dev[controlName] = point.noMatchTitle || "Нет подходящего диапазона"
-            log.error(deviceName + "/" + point.name + ": no initial threshold for " + value)
+            log.error(
+                deviceName + "/" + point.name +
+                ": no initial threshold for " + value +
+                " at index " + currentSelectionIndex
+            )
         }
     }
 
@@ -132,6 +190,10 @@ function createThresholdPoint(deviceName, point) {
                 if (!isUsableThreshold(other)) {
                     continue
                 }
+                if (getThresholdSelectionIndex(threshold) !==
+                    getThresholdSelectionIndex(other)) {
+                    continue
+                }
                 var low = Math.max(
                     threshold.low === undefined ? -Infinity : Number(threshold.low),
                     other.low === undefined ? -Infinity : Number(other.low)
@@ -147,11 +209,19 @@ function createThresholdPoint(deviceName, point) {
                      includesValue(other, low))) {
                     log.error(
                         deviceName + "/" + point.name +
-                        ": thresholds " + index + " and " + otherIndex + " overlap"
+                        ": thresholds " + index + " and " + otherIndex +
+                        " overlap at index " + getThresholdSelectionIndex(threshold)
                     )
                 }
             }
         }
+    }
+
+    if (point.getIndex !== undefined && typeof point.getIndex !== "function") {
+        log.error(deviceName + "/" + point.name + ": getIndex must be a function")
+    }
+    if (point.onIndexChange !== undefined && typeof point.onIndexChange !== "function") {
+        log.error(deviceName + "/" + point.name + ": onIndexChange must be a function")
     }
 
     validateThresholds()
@@ -163,6 +233,20 @@ function createThresholdPoint(deviceName, point) {
         }
     })
 
+    if ((typeof point.indexWhenChanged === "string" &&
+         point.indexWhenChanged.length > 0) ||
+        (Array.isArray(point.indexWhenChanged) &&
+         point.indexWhenChanged.length > 0)) {
+        defineRule({
+            whenChanged: point.indexWhenChanged,
+            then: function () {
+                evaluate(dev[point.dev], false)
+            }
+        })
+    } else if (point.indexWhenChanged !== undefined) {
+        log.error(deviceName + "/" + point.name + ": indexWhenChanged must not be empty")
+    }
+
     evaluate(dev[point.dev], true)
 
     return {
@@ -171,6 +255,9 @@ function createThresholdPoint(deviceName, point) {
         },
         getIndex: function () {
             return currentIndex
+        },
+        getSelectionIndex: function () {
+            return currentSelectionIndex
         }
     }
 }
